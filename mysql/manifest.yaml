@@ -9,7 +9,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql           
   namespace: expense
   labels:                # This is the label of the replicaset. This is used to identify the replicaset only.
     app: mysql             
@@ -39,7 +39,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: mysql
+  name: mysql         # this will be served as DNS route53 name for the service
   namespace: expense
 spec:
   selector:           # This is the label of the pod to which this service will route the traffic
