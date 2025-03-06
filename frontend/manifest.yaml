@@ -39,6 +39,6 @@ spec:
     project: expense    
   ports:
   - name: nginx-service
-    port: 8081         # Service Port , this is for other containers to communicate with nginx container
-    targetPort: 8081   # Container Port
+    port: 80         # Service Port , this is for other containers to communicate with nginx container
+    targetPort: 80   # Container Port
     protocol: TCP
