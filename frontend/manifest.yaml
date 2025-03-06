@@ -27,6 +27,19 @@ spec:
         securityContext:
           capabilities:
             add: ["NET_BIND_SERVICE"]
+
+      # Why the Capability?
+      # On Linux, binding to ports below 1024 (like port 80) requires elevated privileges. Since your Dockerfile sets the user to nginx (a non-root user), nginx doesn’t have permission by default.
+
+      # Adding NET_BIND_SERVICE:
+      # The added line in the security context:
+
+      # securityContext:
+      #   capabilities:
+      #     add:
+      #       - NET_BIND_SERVICE
+
+      # This instructs Kubernetes to grant the container the ability to bind to privileged ports. This way, even though nginx runs as the non-root nginx user, it can still bind to port 80.
 ---
 kind: Service
 apiVersion: v1
