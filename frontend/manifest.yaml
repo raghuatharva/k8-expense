@@ -24,9 +24,7 @@ spec:
       containers:
       - name: frontend
         image: rohanraghu/frontend:v1
-        securityContext:
-          capabilities:
-            add: ["NET_BIND_SERVICE"]
+
 ---
 kind: Service
 apiVersion: v1
@@ -41,6 +39,6 @@ spec:
     project: expense    
   ports:
   - name: nginx-service
-    port: 80          # Service Port , this is for other containers to communicate with nginx container
-    targetPort: 80    # Container Port
+    port: 8081         # Service Port , this is for other containers to communicate with nginx container
+    targetPort: 8081   # Container Port
     protocol: TCP
