@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: db
-        image: mysql
+        image: rohanraghu/mysql:v1
         envFrom:
         - configMapRef:
             name: mysql

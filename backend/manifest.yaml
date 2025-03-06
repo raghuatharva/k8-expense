@@ -30,8 +30,8 @@ spec:
         project: expense     
     spec:
       containers:
-      - name: db
-        image: mysql
+      - name: backend
+        image: rohanraghu/backend:v1
         envFrom:
         - configMapRef:
             name: backend
