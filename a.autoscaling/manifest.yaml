@@ -24,7 +24,8 @@ spec:
       containers:
       - name: frontend
         image: rohanraghu/frontend:v1
-        containerPort: 80
+        containerPort: 
+               - ports: 80
         resources:
           requests:
             memory: "64Mi"  #soft limit 64 megabytes
