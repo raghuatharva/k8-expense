@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: expense
 data:
-  DB_HOST: mysql
+  DB_HOST: mysql      # This should  the DNS name of the HEADLESS mysql service
 ---
 apiVersion: apps/v1
 kind: Deployment
