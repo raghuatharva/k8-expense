@@ -29,12 +29,16 @@ spec:
         tier: backend
         project: expense     
     spec:
+      initContainers:
+      - name: init-myservice
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup mysql; do echo waiting for myservice; sleep 2; done"]
+        # nslookup mysql --> if you only need to wait for MySQL DNS resolution (Service is created).
+        # mysqladmin ping -h mysql --silent --> This is the best way to check if MySQL is ready to accept connections. 
+        #but running init container should also be a mysql container only
       containers:
       - name: backend
         image: rohanraghu/backend:v1
-        envFrom:
-        - configMapRef:
-            name: backend
         resources:
           requests:
             memory: "64Mi"
@@ -42,6 +46,20 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
+        envFrom:
+        - configMapRef:
+            name: backend
+        livenessProbe:
+          httpGet: 
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
 ---
 kind: Service
 apiVersion: v1

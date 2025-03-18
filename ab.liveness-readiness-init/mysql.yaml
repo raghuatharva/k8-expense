@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql
+  namespace: expense
+data:
+  MYSQL_ROOT_PASSWORD: ExpenseApp@1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql           
+  namespace: expense
+  labels:                # This is the label of the replicaset. This is used to identify the replicaset only.
+    app: mysql             
+    tier: db
+    project: expense
+spec:
+  replicas: 2               # Number of pods to be created
+  selector:
+    matchLabels:         # This should be the label of the pod to which this replicaset will manage          
+      app: mysql             
+      tier: db
+      project: expense
+  template:
+    metadata:
+      labels:             # (This is the label of the pod) this label should be same as matchLabels of selector  
+        app: mysql             
+        tier: db
+        project: expense      
+    spec:
+      containers:
+      - name: db
+        image: rohanraghu/mysql:v1
+        envFrom:
+        - configMapRef:
+            name: mysql
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        readinessProbe:
+          exec:
+            command: [ "mysqladmin", "ping", "-h", "localhost" ]    
+          initialDelaySeconds: 15
+          periodSeconds: 5
+#              Why mysqladmin ping is Better for Readiness
+# telnet mysql 3306 → Only checks if the port is open (not if MySQL is truly ready).
+# mysqladmin ping -h localhost → Actually checks if MySQL can accept queries.
+        livenessProbe:
+          tcpSocket:
+              port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 10
+# if port if open , then the container is alive; if not, then the container is dead
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql         # this will be served as DNS route53 name for the service
+  namespace: expense
+spec:
+  selector:           # This is the label of the pod to which this service will route the traffic
+    app: mysql             
+    tier: db
+    project: expense      
+  ports:
+  - name: mysql-service
+    port: 3306          # Service Port , this is for other containers to communicate with nginx container
+    targetPort: 3306    # Container Port
+    protocol: TCP
