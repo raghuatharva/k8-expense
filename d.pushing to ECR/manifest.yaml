@@ -1,3 +1,4 @@
+#ECR repo image used in the spec-container-image
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,10 +24,17 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: rohanraghu/frontend:v1
-        securityContext:
-          capabilities:
-            add: ["NET_BIND_SERVICE"]
+        image: 180294178330.dkr.ecr.us-east-1.amazonaws.com/expense/frontend:v1 #ECR image
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        # securityContext:
+        #   capabilities:
+        #     add: ["NET_BIND_SERVICE"]
 ---
 ################################################################################################
       # Why the Capability?

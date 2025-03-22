@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: expense-conf
+  namespace: expense
+data:
+  expense.conf: | # | represents multi line file    
+    proxy_http_version 1.1;
+
+    location /api/ {
+        proxy_pass http://backend:8080/;
+    }
+
+    location /health {
+        stub_status on;
+        access_log off;
+    }
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: expense
+  labels:                # This is the label of the replicaset. This is used to identify the replicaset only.
+    app: nginx             
+    tier: frontend
+    project: expense
+spec:
+  replicas: 3               # Number of pods to be created
+  selector:
+    matchLabels:         # This should be the label of the pod to which this replicaset will manage          
+      app: nginx             
+      tier: frontend
+      project: expense
+  template:
+    metadata:
+      labels:             # (This is the label of the pod) this label should be same as matchLabels of selector  
+        app: nginx             
+        tier: frontend
+        project: expense
+    spec:
+      containers:
+      - name: frontend
+        image: rohanraghu/frontend:v1
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        volumeMounts:
+        - mountPath: "/etc/nginx/default.d/expense.conf"
+          name: expense.conf
+          subPath: expense.conf
+          readOnly: true #means no one can change this in pod 
+      volumes:
+        - name: expense.conf
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: expense-conf
+            namespace: expense
+          data:
+            key: expense.conf
+            path: expense.conf #if subpath is there , no need of this path ; subpath means actual filename
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx
+  namespace: expense
+spec:
+  type: LoadBalancer
+  selector:           # This is the label of the pod to which this service will route the traffic
+    app: nginx             
+    tier: frontend
+    project: expense    
+  ports:
+  - name: nginx-service
+    port: 80         # Service Port , this is for other containers to communicate with nginx container
+    targetPort: 80   # Container Port
+    protocol: TCP
